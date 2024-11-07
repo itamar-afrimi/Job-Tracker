@@ -6,26 +6,35 @@ import './EntryScreen.css';
 function EntryScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
+
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
+            console.log("enter handle login entry screen")
             // Logic for login validation can be added here
-            const response = await fetch('/login', {
+            const response = await fetch('http://localhost:5001/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username, password}),
             });
+
+            console.log(response)
             const data = await response.json()
+
             if (response.ok) {
                 console.log("user logged in");
                 navigate('/home')
             } else {
+                console.log(data.message)
                 setMessage(data.message || 'Registration failed');
             }
         }catch (error){
-            setMessage('An error occurred: ' + error.message);
+            // console.log('error');
+            console.log(error.message)
+            // setMessage('An error occurred: ' + error.message);
 
         }
 
