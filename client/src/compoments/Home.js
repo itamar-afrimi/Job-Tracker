@@ -1,125 +1,171 @@
 import React, { useState, useEffect } from 'react';
+import './Home.css'; // Import the new CSS file
+import { useNavigate } from 'react-router-dom';
 
 function Home() {
     const [jobs, setJobs] = useState([]);
-    const [newJob, setNewJob] = useState('');
+    const [appliedStatus, setAppliedStatus] = useState({});
+    const [message, setMessage] = useState('');
+    const [sidebarOpen, setSidebarOpen] = useState(true); // State for sidebar visibility
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
 
-    // Fetch jobs from MongoDB when the component mounts
     useEffect(() => {
-        async function fetchJobs() {
+        // Fetch jobs from your API (MongoDB)
+        const fetchJobs = async () => {
             try {
-                const response = await fetch('http://localhost:5001/jobs');
+                const response = await fetch('http://localhost:5001/jobs', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
                 const data = await response.json();
-                setJobs(data);
+                if (response.ok) {
+                    setJobs(data);
+                    // After fetching jobs, check if user has applied
+                    data.forEach(job => {
+                        checkIfApplied(job.jobId);
+                    });
+                } else {
+                    setMessage(data.message || 'Failed to load jobs');
+                }
             } catch (error) {
-                console.error('Error fetching jobs:', error);
+                setMessage('An error occurred: ' + error.message);
             }
-        }
+        };
+        const checkIfApplied = async (jobId) => {
+            console.log("got into checkIfApplied")
+            try {
+                const response = await fetch(`http://localhost:5001/jobs/${jobId}/applied`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                console.log("got data")
+                setAppliedStatus((prevState) => ({
+                    ...prevState,
+                    [jobId]: data.applied
+                }));
+            } catch (error) {
+                console.error("Error checking application status:", error);
+            }
+        };
         fetchJobs();
-    }, []);
+    }, [token]);
 
-    const handleAddJob = async () => {
-        if (!newJob) return;
+    const handleAddJob = () => {
+        navigate('/add-job'); // Assuming you have an "add job" page
+    };
 
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen); // Toggle sidebar visibility
+    };
+    const toggleDropdown = () => {
+        setDropdownOpen((prev) => !prev); // Toggle the dropdown menu
+    };
+    const handleLogOut = () => {
+        localStorage.removeItem('token'); // Remove token from localStorage
+        navigate('/'); // Redirect to login screen
+    };
+    const handleApplyJob = async (jobId) => {
+        // Logic to apply for the job (create an application in the DB)
+        // You can call an API endpoint that creates an application
+        console.log("getting into apply job")
+        console.log(jobId)
         try {
-            const response = await fetch('http://localhost:5001/jobs', {
+            const response = await fetch(`http://localhost:5001/jobs/${jobId}/apply`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ title: newJob }),
+                body: JSON.stringify({
+                    jobId
+                }),
             });
 
-            if (response.ok) {
-                const job = await response.json();
-                setJobs([...jobs, job]);
-                setNewJob('');
-            } else {
-                console.error('Failed to add job');
+            const data = await response.json();
+            if (data.success) {
+                setAppliedStatus(prev => ({ ...prev, [jobId]: true }));
             }
         } catch (error) {
-            console.error('Error adding job:', error);
+            console.error('Failed to apply:', error);
         }
     };
 
+
     return (
-        <div style={styles.container}>
-            <h1 style={styles.header}>Welcome to Your Job Tracker</h1>
-            <div style={styles.jobsContainer}>
-                {jobs.map((job) => (
-                    <div key={job._id} style={styles.jobCard}>
-                        <p>{job.title}</p>
-                    </div>
-                ))}
+        <div className="home-page">
+            {/* Sidebar */}
+            <div className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+                <h2>Job Tracker</h2>
+                <ul>
+                    <li>Dashboard</li>
+                    <li>Jobs</li>
+                    <li>Settings</li>
+                </ul>
             </div>
-            <div style={styles.newJobContainer}>
-                <input
-                    type="text"
-                    placeholder="New job title"
-                    value={newJob}
-                    onChange={(e) => setNewJob(e.target.value)}
-                    style={styles.input}
-                />
-                <button onClick={handleAddJob} style={styles.button}>Add Job</button>
+
+            {/* Main Content */}
+            <div className="main-content">
+                <button onClick={toggleSidebar} className="toggle-sidebar-btn">
+                    <img src="https://img.icons8.com/material-outlined/24/ffffff/menu.png" alt="menu"/>
+                </button>
+                {/* Top Bar */}
+                <div className="top-bar">
+                    <div className="profile">
+                        <span>Profile</span>
+                    </div>
+                    <div className="settings" onClick={toggleDropdown}>
+                        <span>Settings</span>
+                    </div>
+                    {/* Dropdown Menu */}
+                    {dropdownOpen && (
+                        <div className="dropdown-menu">
+                            <button onClick={handleLogOut}>Log Out</button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Jobs List */}
+                <div className="jobs-list">
+                    <h1>Your Jobs</h1>
+                    {jobs.length > 0 ? (
+                        <ul>
+                            {jobs.map((job, index) => (
+                                <li key={index} className="job-item">
+                                    <h2>{job.title}</h2>
+                                    <p>{job.details}</p>
+                                    <div className="status">
+                                        {appliedStatus[job.jobId] ? (
+                                            <span className="applied">You applied</span>
+                                        ) : (
+                                            <button onClick={() => handleApplyJob(job.linkedinLink)}
+                                                    className="apply-btn">Apply</button>
+                                        )}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No jobs found</p>
+                    )}
+                </div>
+
+
+                <button className="add-job-btn" onClick={handleAddJob}>
+                    Add New Job
+                </button>
             </div>
         </div>
     );
 }
-
-// Inline styling for simplicity; adjust as needed
-const styles = {
-    container: {
-        backgroundImage: 'url("your-background-image.jpg")',  // Add your own image URL
-        backgroundSize: 'cover',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px',
-        height: '100vh',
-        color: '#fff',
-    },
-    header: {
-        fontSize: '2em',
-        marginBottom: '20px',
-    },
-    jobsContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '10px',
-        marginBottom: '20px',
-        maxHeight: '50vh',
-        overflowY: 'auto',
-        width: '80%',
-    },
-    jobCard: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        padding: '15px',
-        borderRadius: '5px',
-        width: '100%',
-        textAlign: 'center',
-    },
-    newJobContainer: {
-        display: 'flex',
-        gap: '10px',
-        marginTop: '20px',
-    },
-    input: {
-        padding: '10px',
-        fontSize: '1em',
-        borderRadius: '5px',
-        border: 'none',
-        outline: 'none',
-    },
-    button: {
-        padding: '10px 20px',
-        fontSize: '1em',
-        borderRadius: '5px',
-        backgroundColor: '#4CAF50',
-        color: '#fff',
-        border: 'none',
-        cursor: 'pointer',
-    },
-};
 
 export default Home;

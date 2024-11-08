@@ -13,6 +13,9 @@ function Register() {
     const goToEntryScreen = () => {
         navigate('/');
     };
+    const goHome = () => {
+        navigate('/Home')
+    }
 
     const handleRegister = async (event) => {
         event.preventDefault();
@@ -25,12 +28,14 @@ function Register() {
                 body: JSON.stringify({ username, password }),
             });
             const data = await response.json();
+            console.log("fetched response", response)
 
             if (response.ok) {
                 console.log("User registered successfully!");
                 localStorage.setItem('token', data.token);
                 navigate('/home'); // Redirect on success
             } else {
+                console.log(data.message)
                 setMessage(data.message || 'Registration failed');
             }
         } catch (error) {
