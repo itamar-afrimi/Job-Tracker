@@ -13,7 +13,7 @@ function EntryScreen() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            console.log("enter handle login entry screen")
+            // console.log("enter handle login entry screen")
             // Logic for login validation can be added here
             const response = await fetch('http://localhost:5001/login', {
                 method: 'POST',
@@ -21,11 +21,13 @@ function EntryScreen() {
                 body: JSON.stringify({username, password}),
             });
 
-            console.log(response)
+            // console.log(response)
             const data = await response.json()
 
             if (response.ok) {
-                console.log("user logged in");
+                // console.log("user logged in");
+                // console.log(response)
+                localStorage.setItem("token", data.token)
                 navigate('/home')
             } else {
                 console.log(data.message)

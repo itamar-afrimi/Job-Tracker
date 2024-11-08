@@ -5,6 +5,7 @@ import './AddJob.css'; // Import CSS for styling
 
 function AddJob() {
     const [title, setTitle] = useState('');
+    const [jobId, setJobId] = useState('');
     const [company, setCompany] = useState('');
     const [userId, setUserId] = useState('');
     const [details, setDetails] = useState('');
@@ -15,22 +16,29 @@ function AddJob() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setMessage('No token found. Please log in.');
+            return;
+        }
+        console.log("try to add job")
         try {
             const response = await fetch('http://localhost:5001/jobs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     company,
                     title,
                     details,
                     location,
-                    linkedinLink,
-                    userId
+                    linkedinLink
+
                 }),
             });
-
+            console.log("Got response from add job")
             const data = await response.json();
             if (response.ok) {
                 console.log('Job added successfully');
@@ -48,6 +56,17 @@ function AddJob() {
             <div className="form-container">
                 <h1>Add a New Job</h1>
                 <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="title">Company</label>
+                        <input
+                            type="text"
+                            id="company"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            required
+                            placeholder="Enter company name"
+                        />
+                    </div>
                     <div className="form-group">
                         <label htmlFor="title">Job Title</label>
                         <input

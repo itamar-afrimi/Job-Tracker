@@ -4,6 +4,7 @@
 .home-page {
     display: flex;
     height: 100vh; /* Full viewport height */
+    transition: margin-left 0.3s ease-in-out; /* Smooth transition when sidebar opens/closes */
 }
 
 /* Sidebar Styling */
@@ -17,6 +18,43 @@
     left: 0;
     height: 100%;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease; /* Smooth transition for opening and closing */
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    width: 150px;
+    z-index: 1;
+}
+
+.dropdown-menu button {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.dropdown-menu button:hover {
+    background-color: #0056b3;
+}
+
+.sidebar.closed {
+    transform: translateX(-100%); /* Hide sidebar */
+}
+
+.sidebar.open {
+    transform: translateX(0); /* Show sidebar */
 }
 
 .sidebar h2 {
@@ -41,6 +79,22 @@
     padding: 10px;
 }
 
+/* Sidebar Toggle Button */
+.toggle-sidebar-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 100; /* Make sure it’s on top of the sidebar content */
+}
+
+.toggle-sidebar-btn img {
+    width: 30px; /* Size of the hamburger icon */
+    height: 30px;
+}
+
 /* Main content area */
 .main-content {
     margin-left: 250px; /* Offset by the sidebar width */
@@ -48,6 +102,10 @@
     padding: 20px;
     background-color: #f7f7f7;
     transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar.closed + .main-content {
+    margin-left: 0; /* Adjust main content when sidebar is closed */
 }
 
 /* Top Bar Styling */
@@ -74,26 +132,30 @@
 /* Jobs List Styling */
 .jobs-list {
     margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 20px;
+    padding: 20px;
 }
 
 .jobs-list h1 {
     font-size: 2.5rem;
     margin-bottom: 15px;
     color: #333;
+    text-align: center;
+    font-weight: bold;
 }
 
-.jobs-list ul {
-    list-style-type: none;
-    padding: 0;
-}
-
+/* Job Card Styling */
 .job-item {
     background-color: #fff;
-    padding: 15px;
-    margin: 10px 0;
+    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .job-item:hover {
@@ -101,29 +163,57 @@
 }
 
 .job-item h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: #007bff;
+    margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .job-item p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #555;
+    margin-bottom: 15px;
 }
 
-.add-job-btn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 12px 20px;
-    font-size: 1.2rem;
+.job-item .status {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.job-item .status.applied {
+    color: #2ecc71; /* Green color for applied status */
+}
+
+.job-item .status.not-applied {
+    color: #e74c3c; /* Red color for not applied status */
+}
+
+.job-item .date {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Button for Applying */
+.apply-btn {
+    background-color: #2980b9;
+    color: white;
     border: none;
+    padding: 10px;
+    font-size: 1rem;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    align-self: flex-start;
+    margin-top: 10px;
 }
 
-.add-job-btn:hover {
-    background-color: #0056b3;
+.apply-btn:hover {
+    background-color: #3498db;
 }
+
 /* Responsive Design: Adjust layout on small screens */
 @media (max-width: 768px) {
     .home-page {
