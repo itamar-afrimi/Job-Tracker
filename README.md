@@ -4,7 +4,7 @@
 
 A responsive job-tracking web app that helps users track their job applications, store details of jobs, and stay organized in their job search journey. Users can view all jobs they’ve applied for, and new job postings, and also manage applications with an intuitive interface.
 
-![Job Tracker Banner](https://via.placeholder.com/1200x300) <!-- Add an image or banner here to represent your project -->
+
 
 ## Table of Contents
 - [Features](#features)
