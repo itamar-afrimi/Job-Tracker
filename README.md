@@ -159,7 +159,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact 📬
 
-- **Your Name** - [Your Email](mailto:your-email@example.com)
+- **Itamar Afrimi** - [afrimi2000@gmail.com](mailto:your-email@example.com)
 - **Project Link**: [https://github.com/your-username/job-tracker](https://github.com/your-username/job-tracker)
 
 ---
